@@ -2,6 +2,7 @@ package com.xtremelabs.robolectric.shadows;
 
 import android.webkit.CookieManager;
 import com.xtremelabs.robolectric.WithTestDefaultsRunner;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -10,6 +11,12 @@ import static org.junit.Assert.*;
 
 @RunWith(WithTestDefaultsRunner.class)
 public class CookieManagerTest {
+
+    @After
+    public void teardown() {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
+    }
 
 	@Test
 	public void shouldGetASingletonInstance() {

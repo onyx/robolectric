@@ -4,9 +4,10 @@ import android.webkit.CookieManager;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
+import org.apache.http.cookie.Cookie;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.CookieStore;
+import java.util.*;
 
 /**
  * Shadows the {@code android.telephony.TelephonyManager} class.
@@ -15,7 +16,7 @@ import java.util.Map;
 @Implements(CookieManager.class)
 public class ShadowCookieManager {
     private static CookieManager sRef;
-    private Map<String,String> cookies = new HashMap<String, String>();
+    private Map<String,List<String>> cookies = new HashMap<String, List<String>>();
     private boolean accept;
 
     @Implementation
@@ -28,12 +29,30 @@ public class ShadowCookieManager {
 
     @Implementation
     public void setCookie(String url, String value) {
-        cookies.put(url, value);
+        if(!cookies.containsKey(url)) {
+            cookies.put(url, new ArrayList<String>());
+        }
+
+        cookies.get(url).add(value);
     }
 
     @Implementation
     public String getCookie(String url) {
-        return cookies.get(url);
+        StringBuilder sb = new StringBuilder();
+        List cookieList = cookies.get(url);
+        if (cookieList != null) {
+            Iterator<String> cookieIter = cookieList.iterator();
+            while(cookieIter.hasNext()) {
+                sb.append(cookieIter.next());
+                if (cookieIter.hasNext()) {
+                    sb.append(",");
+                }
+            }
+
+            return sb.toString();
+        } else {
+            return null;
+        }
     }
 
     @Implementation
